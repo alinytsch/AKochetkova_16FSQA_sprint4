@@ -13,6 +13,8 @@ import ru.yandex.scooter.pageobjects.ScooterOrderPage;
 import java.util.Arrays;
 import java.util.Collection;
 
+import static org.junit.Assert.assertEquals;
+
 @RunWith(Parameterized.class)
 public class OrderTest {
     private WebDriver driver;
@@ -23,10 +25,10 @@ public class OrderTest {
     private final String phoneNumber;
     private final String date;
     private final String rentalPeriod;
-    private final String color;
     private final String comment;
 
-    public OrderTest(String name, String surname, String address, String subway, String phoneNumber, String date, String rentalPeriod, String color, String comment) {
+    public OrderTest(String name, String surname, String address, String subway, String phoneNumber,
+                     String date, String rentalPeriod, String comment) {
         this.name = name;
         this.surname = surname;
         this.address = address;
@@ -34,16 +36,16 @@ public class OrderTest {
         this.phoneNumber = phoneNumber;
         this.date = date;
         this.rentalPeriod = rentalPeriod;
-        this.color = color;
         this.comment = comment;
     }
 
-    // Статический метод, который возвращает набор параметров для теста
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][] {
-                { "Агафон", "Петров", "г. Москва, ул. Б.Тульская, д. 15", "Тульская", "89999999999", "27-02-2025", "трое суток", "grey", "Позвоните, пожалуйста, заранее" },
-                { "Аглая", "Иванова", "ул. Маяковская, д. 13, кв. 23", "Маяковская", "+79778886644", "01-03-2025", "трое суток", "black", "-" }
+        return Arrays.asList(new Object[][]{
+                {"Агафон", "Петров", "г. Москва, ул. Б.Тульская, д. 15", "Тульская", "89999999999",
+                        "27-02-2025", "трое суток", "Позвоните заранее"},
+                {"Аглая", "Иванова", "ул. Маяковская, д. 13, кв. 23", "Маяковская", "+79778886644",
+                        "01-03-2025", "трое суток", "-"}
         });
     }
 
@@ -70,19 +72,23 @@ public class OrderTest {
         orderPage.clickOrderNextButton();
         orderPage.setDate(date);
         orderPage.setRentalPeriod(rentalPeriod);
-        orderPage.setColor(color); // Убедитесь, что цвет передается как строка "grey" или "black"
         orderPage.setComment(comment);
         orderPage.clickOrderCreateButton();
-        orderPage.clickOrderConfirmButton();
 
-        // Проверка текста заголовка подтверждения
-        String confirmHeaderText = orderPage.getConfirmHeader();
-        String expectedConfirmHeader = "Посмотреть статус"; // Замените на правильный текст, если нужно
-        assert confirmHeaderText.equals(expectedConfirmHeader) : "Expected: " + expectedConfirmHeader + ", but got: " + confirmHeaderText;
+        // Дождаться и кликнуть на кнопку "Да"
+        orderPage.clickOrderButtonYes();
+
+        // Дождаться появления модального окна
+        orderPage.waitForOrderConfirmation();
+
+        // Проверить заголовок подтверждения заказа
+        assertEquals("Заказ оформлен", orderPage.getConfirmHeader());
     }
 
     @After
     public void teardown() {
-        driver.quit();
+        if (driver != null) {
+            driver.quit();
+        }
     }
 }

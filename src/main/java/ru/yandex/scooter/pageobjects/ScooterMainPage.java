@@ -14,35 +14,44 @@ public class ScooterMainPage {
         this.driver = driver;
     }
 
-    private By question(int index) {
-        return By.xpath(".//div[@class='accordion__item'][" + index + "]");
-    }
+    private By[] questions = {
+            By.xpath(".//div[@class='accordion__item'][1]"),
+            By.xpath(".//div[@class='accordion__item'][2]"),
+            By.xpath(".//div[@class='accordion__item'][3]"),
+            By.xpath(".//div[@class='accordion__item'][4]"),
+            By.xpath(".//div[@class='accordion__item'][5]"),
+            By.xpath(".//div[@class='accordion__item'][6]"),
+            By.xpath(".//div[@class='accordion__item'][7]"),
+            By.xpath(".//div[@class='accordion__item'][8]")
+    };
 
-    private By answer(int index) {
-        return By.id("accordion__panel-" + (index - 1));
-    }
+    private By[] answers = {
+            By.id("accordion__panel-0"),
+            By.id("accordion__panel-1"),
+            By.id("accordion__panel-2"),
+            By.id("accordion__panel-3"),
+            By.id("accordion__panel-4"),
+            By.id("accordion__panel-5"),
+            By.id("accordion__panel-6"),
+            By.id("accordion__panel-7")
+    };
 
     private By headerOrderButton = By.xpath(".//button[text()='Заказать'][1]");
     private By pageOrderButton = By.xpath(".//div[contains(@class,'Home_FinishButton')]/button");
 
     public void clickQuestion(int index) {
-        WebDriverWait wait = new WebDriverWait(driver, 10); // Ожидание 10 секунд
-        WebElement questionElement = driver.findElement(question(index));
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+        WebElement questionElement = driver.findElement(questions[index - 1]);
 
-        // Явное ожидание, пока элемент станет видимым
         wait.until(ExpectedConditions.visibilityOf(questionElement));
-        // Ожидаем, пока элемент станет кликабельным
         wait.until(ExpectedConditions.elementToBeClickable(questionElement));
 
-        // Прокрутка до элемента, если он не в пределах видимой области
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", questionElement);
-
-        // После того как элемент стал видимым и кликабельным, кликаем
         questionElement.click();
     }
 
     public String getAnswerText(int index) {
-        return driver.findElement(answer(index)).getText();
+        return driver.findElement(answers[index - 1]).getText();
     }
 
     public void verifyAnswerText(int index, String expectedText) {
